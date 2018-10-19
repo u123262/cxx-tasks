@@ -16,8 +16,63 @@
 
 //{ image iterator
 template<class Iterator>
-class image_iterator: public boost::iterator_adaptor<...>
+class image_iterator: public boost::iterator_adaptor<image_iterator<Iterator>, Iterator>
 {
+
+private:
+    size_t width_;
+    size_t stride_;
+
+    size_t i = 0;
+
+    friend class boost::iterator_core_access;
+
+    void increment()
+    {
+        i++;
+
+        this->base_reference()++;
+
+        if (i % stride_ == width_) {
+            this->base_reference() += stride_ - width_;
+            i+= stride_ - width_;
+        }
+    }
+
+    void deccrement()
+    {
+        i--;
+
+        this->base_reference()--;
+
+        if (i % stride_ == width_) {
+            this->base_reference() -= stride_ - width_;
+            i-= stride_ - width_;
+        }
+    }
+
+    void advance( ptrdiff_t d )
+    {
+        for (int i = 0; i < +int(d); i++) {
+            increment();
+        }
+
+        for (int i = 0; i < -int(d); i++) {
+            deccrement();
+        }
+    }
+
+    ptrdiff_t distance_to( image_iterator const & i ) const
+    {
+        int tmp = i.base() - this->base();
+        tmp = tmp / int(stride_ - 1) * int(stride_ - width_);
+
+        return (i.base() - this->base() - tmp);
+    }
+
+public:
+    explicit image_iterator(Iterator it, size_t width, size_t stride)
+    : image_iterator::iterator_adaptor_(it), width_(width), stride_(stride) { }
 
 };
 //}
