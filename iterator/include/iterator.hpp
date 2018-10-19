@@ -33,19 +33,19 @@ private:
 
         this->base_reference()++;
 
-        if (i % stride_ == width_) {
+        if (i % stride_ >= width_) {
             this->base_reference() += stride_ - width_;
             i+= stride_ - width_;
         }
     }
 
-    void deccrement()
+    void decrement()
     {
         i--;
 
         this->base_reference()--;
 
-        if (i % stride_ == width_) {
+        if (i % stride_ >= width_) {
             this->base_reference() -= stride_ - width_;
             i-= stride_ - width_;
         }
@@ -58,16 +58,29 @@ private:
         }
 
         for (int i = 0; i < -int(d); i++) {
-            deccrement();
+            decrement();
         }
     }
 
     ptrdiff_t distance_to( image_iterator const & i ) const
     {
-        int tmp = i.base() - this->base();
-        tmp = tmp / int(stride_ - 1) * int(stride_ - width_);
+        int tmp = 0;
 
-        return (i.base() - this->base() - tmp);
+        for (int j = i.i; j < i.i - (int)(i.base() - this->base()); j++) {
+            if (j % stride_ >= width_) {
+                j+=stride_-width_;
+                tmp+=stride_-width_;
+            }
+        }
+
+        for (int j = i.i; j > i.i - (int)(i.base() - this->base()); j--) {
+            if (j % stride_ >= width_) {
+                j-=stride_-width_;
+                tmp-=stride_-width_;
+            }
+        }
+
+        return (i.base() - this->base() + tmp);
     }
 
 public:
