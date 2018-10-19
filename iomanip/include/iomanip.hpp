@@ -38,30 +38,32 @@ squares_proxy operator<<(std::ostream& os, squares_creator) {
 //}
 
 //{ add manipulator
-inline int geti() {
-    static int i = (int)std::ios_base::xalloc();
-    return i;
-}
+struct add_proxy_next {
+    explicit add_proxy_next(std::ostream & os, long const& num): os(os), previous_num(num) {}
 
-struct sum_put : std::num_put<char> {
-    iter_type do_put(iter_type s, std::ios_base& f, char_type fill, long v) const {
-        static int i = geti();
-
-        if (f.iword(i) == '+') {
-            f.iword(i) = v;
-            return nullptr;
-        } else {
-            long sum = v + f.iword(i);
-            f.iword(i) = NULL;
-            return std::num_put<char>::do_put(s, f, fill, sum);
-        }
+    std::ostream& operator<<(long const& current_num) {
+        return os << previous_num + current_num;
     }
+
+private:
+    std::ostream & os;
+    long previous_num;
 };
 
-std::ostream& add(std::ostream& os) {
-    os.imbue(std::locale(std::locale(), new sum_put));
-    os.iword(geti()) = '+';
-    return os;
+struct add_proxy {
+    explicit add_proxy(std::ostream & os): os(os) {}
+
+    struct add_proxy_next operator<<(long const& current_num) {
+        return add_proxy_next(os, current_num);
+    }
+
+private:
+    std::ostream & os;
+};
+
+struct add_creator { } add;
+add_proxy operator<<(std::ostream & os, add_creator) {
+    return add_proxy(os);
 }
 //}
 
