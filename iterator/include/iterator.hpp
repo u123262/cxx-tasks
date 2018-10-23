@@ -62,25 +62,12 @@ private:
         }
     }
 
-    ptrdiff_t distance_to( image_iterator const & i ) const
+    ptrdiff_t distance_to( image_iterator const & element ) const
     {
-        int tmp = 0;
+        int offset = element.i % (int)stride_;
+        int delta = element.base() - this->base() - offset;
 
-        for (int j = i.i; j < i.i - (int)(i.base() - this->base()); j++) {
-            if (j % stride_ >= width_) {
-                j+=stride_-width_;
-                tmp+=stride_-width_;
-            }
-        }
-
-        for (int j = i.i; j > i.i - (int)(i.base() - this->base()); j--) {
-            if (j % stride_ >= width_) {
-                j-=stride_-width_;
-                tmp-=stride_-width_;
-            }
-        }
-
-        return (i.base() - this->base() + tmp);
+        return delta / (int)stride_ * (int)width_ + delta % (int)stride_ + offset;
     }
 
 public:
