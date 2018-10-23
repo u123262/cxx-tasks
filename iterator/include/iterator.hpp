@@ -64,10 +64,11 @@ private:
 
     ptrdiff_t distance_to( image_iterator const & element ) const
     {
-        int offset = element.i % (int)stride_;
-        int delta = element.base() - this->base() - offset;
+        int delta = element.base() - this->base();
+        int offset = (element.i % (int)stride_) * (delta > 0 ? 1:-1);
+        delta = delta + offset;
 
-        return delta / (int)stride_ * (int)width_ + delta % (int)stride_ + offset;
+        return delta / (int)stride_ * (int)width_ + delta % (int)stride_ - offset;
     }
 
 public:
