@@ -29,37 +29,23 @@ private:
 
     void increment()
     {
-        i++;
-
-        this->base_reference()++;
-
-        if (i % stride_ >= width_) {
-            this->base_reference() += stride_ - width_;
-            i+= stride_ - width_;
-        }
+        advance(+1);
     }
 
     void decrement()
     {
-        i--;
-
-        this->base_reference()--;
-
-        if (i % stride_ >= width_) {
-            this->base_reference() -= stride_ - width_;
-            i-= stride_ - width_;
-        }
+        advance(-1);
     }
 
     void advance( ptrdiff_t d )
     {
-        for (int i = 0; i < +int(d); i++) {
-            increment();
-        }
+        int delta = d;
+        int offset = delta > 0 ? (i % (int)stride_): -(width_- i % (int)stride_);
 
-        for (int i = 0; i < -int(d); i++) {
-            decrement();
-        }
+        delta += (offset + delta) / (int)width_ * (stride_ - width_);
+
+        this->base_reference() += delta;
+        i += delta;
     }
 
     ptrdiff_t distance_to( image_iterator const & element ) const
