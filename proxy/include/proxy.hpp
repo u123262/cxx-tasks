@@ -16,25 +16,23 @@ public:
     ptr_holder(T* ptr): ptr_(ptr) {}
 
     //{ describe proxy object
-    class proxy: private T
+    class proxy
     {
     public:
-        proxy (T* ptr, std::unique_lock<std::mutex> lk) :ptr_ (ptr), lk_(std::move(lk)) { }
-        ~proxy() { }
-		
+        proxy (T* ptr, std::mutex& mutex_): lock_(mutex_), ptr_ (ptr) { }
+
         T* operator ->() const {
             return ptr_ ;
         }
 		
     private:
         T* ptr_ ;
-        std::unique_lock<std::mutex> lk_;
+        std::lock_guard<std::mutex> lock_;
     };
 
     proxy operator -> () const
     {
-        std::unique_lock<std::mutex> lck(mutex_);
-        return proxy(ptr_, std::move(lck));
+        return proxy(ptr_, std::ref(mutex_));
     }
     //}
 
