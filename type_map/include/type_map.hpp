@@ -30,16 +30,16 @@ namespace detail
 
 //? What is wrong with ``*this[i]``?
 //{
-template<???>
-class type_map: public ???
+template<class U, class... Us>
+class type_map: public std::array<U, sizeof...(Us)>
 {
 public:
-    using types = ...
+    using types = std::array<U, sizeof...(Us)>;
 
     template<class T>
-    ?? as()
+    const auto& as() const
     {
-        return ...
+        return (*this)[detail::type_to_index<T, std::tuple<Us...>>().v];
     }
 };
 //}
@@ -50,7 +50,7 @@ namespace std
     ?? get(??TypeMap?? tm)
     {
         //{ How to call ``as``?
-        return ???
+        return tm.template as<T>();
         //}
     }
 }
