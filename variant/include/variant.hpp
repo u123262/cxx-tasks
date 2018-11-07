@@ -18,7 +18,7 @@
 struct number: std::variant<int, float>
 {
     using base = std::variant<int, float>;
-    using base::base;
+	using base::base;
 };
 //}
 
@@ -26,7 +26,7 @@ struct number: std::variant<int, float>
 struct array: std::vector<number>
 {
     using base = std::vector<number>;
-    using base::base;
+	using base::base;
 };
 //}
 
@@ -34,7 +34,7 @@ struct array: std::vector<number>
 struct recursive_array: std::vector<std::variant<number, std::shared_ptr<recursive_array>>>
 {
     using base = std::vector<std::variant<number, std::shared_ptr<recursive_array>>>;
-    using base::base;
+	using base::base;
 };
 //}
 
@@ -42,34 +42,39 @@ struct recursive_array: std::vector<std::variant<number, std::shared_ptr<recursi
 struct recursive_array2: std::vector<std::variant<number, boost::recursive_wrapper<recursive_array2>>>
 {
     using base = std::vector<std::variant<number, boost::recursive_wrapper<recursive_array2>>>;
-    using base::base;
+	using base::base;
 };
 //}
 
 //{ variant_decorator
-template<typename...T>
-struct variant_decorator: std::variant<T...>
+template<typename...U>
+struct variant_decorator: std::variant<U...>
 {
-    using base = std::variant<T...>;
-using base::base;
+	using base = std::variant<U...>;
+	using base::base;
 
-    template <typename T>
-    auto as() {
-        if constexpr (std::conjunction_v<std::is_same<T, struct recursive_map>>) {
-            return std::get<boost::recursive_wrapper< recursive_map >>(*this).get();
-        } else {
-            return std::get<T>(*this);
-        }
-    }
+	template <typename T>
+    const T& as() const {
+		if constexpr (std::is_same<T, struct recursive_map>()) {
+			return std::get<boost::recursive_wrapper< recursive_map >>(*this).get();
+		} else {
+			return std::get<T>(*this);
+		}
+	}
+
+	template <typename T>
+	T& as() {
+		return const_cast<T&>(const_cast<const variant_decorator *>(this)->as<T>());
+	}
 };
 //}
 
 //{ recursive_map
 struct recursive_map: std::unordered_map<
-	std::string,
-	variant_decorator< int, bool, std::string,  boost::recursive_wrapper< recursive_map > > >
+		std::string,
+		variant_decorator< int, bool, std::string,  boost::recursive_wrapper< recursive_map > > >
 {
-    using base = std::unordered_map<
+	using base = std::unordered_map<
 			std::string,
 			variant_decorator< int, bool, std::string,  boost::recursive_wrapper< recursive_map > > >;
 
