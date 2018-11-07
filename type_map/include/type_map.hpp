@@ -36,10 +36,16 @@ class type_map: public std::array<U, sizeof...(Us)>
 public:
     using types = std::array<U, sizeof...(Us)>;
 
-    template<class T>
-    const auto& as() const
+    template<typename T>
+    const U& as() const
     {
         return (*this)[detail::type_to_index<T, std::tuple<Us...>>().v];
+    }
+
+    template<typename T>
+    U& as()
+    {
+        return const_cast<U&>(const_cast<const type_map *>(this)->as<T>());
     }
 };
 //}
@@ -52,6 +58,12 @@ namespace std
         //{ How to call ``as``?
         return tm.template as<T>();
         //}
+    }
+
+    template<typename T, class TypeMap>
+    auto& get(TypeMap& tm)
+    {
+        return tm.template as<T>();
     }
 }
 
