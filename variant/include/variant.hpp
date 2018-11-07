@@ -17,44 +17,32 @@
 //{ number
 struct number: std::variant<int, float>
 {
-    template<typename T>
-    number(const T& x):std::variant<int, float>(x) {};
+    using base = std::variant<int, float>;
+    using base::base;
 };
 //}
 
 //{ array
 struct array: std::vector<number>
 {
-    array(std::initializer_list<number> x):std::vector<number>(x) {};
+    using base = std::vector<number>;
+    using base::base;
 };
 //}
 
 //{ recursive_array
 struct recursive_array: std::vector<std::variant<number, std::shared_ptr<recursive_array>>>
 {
-    recursive_array(std::initializer_list<std::variant<number, std::shared_ptr<recursive_array>>> x):
-    std::vector<std::variant<number, std::shared_ptr<recursive_array>>>(x) {};
+    using base = std::vector<std::variant<number, std::shared_ptr<recursive_array>>>;
+    using base::base;
 };
 //}
 
 //{ recursive_array2
 struct recursive_array2: std::vector<std::variant<number, boost::recursive_wrapper<recursive_array2>>>
 {
-    auto convert(const std::initializer_list<std::variant<number, recursive_array2>>& input){
-		std::vector<std::variant<number, boost::recursive_wrapper<recursive_array2>>> tmp;
-
-		for(auto x : input) {
-			if (x.index() == 1)
-				tmp.push_back(boost::recursive_wrapper<recursive_array2>(std::get<recursive_array2>(x)));
-			else
-				tmp.push_back(std::get<number>(x));
-		}
-
-		return tmp;
-	}
-
-	recursive_array2(std::initializer_list<std::variant<number, recursive_array2>> x):
-	std::vector<std::variant<number, boost::recursive_wrapper<recursive_array2>>>(convert(x)) {};
+    using base = std::vector<std::variant<number, boost::recursive_wrapper<recursive_array2>>>;
+    using base::base;
 };
 //}
 
@@ -63,15 +51,16 @@ template<typename...T>
 struct variant_decorator: std::variant<T...>
 {
     using base = std::variant<T...>;
-	using base::base;
+using base::base;
 
-	template <typename T>
-	std::enable_if_t<!std::is_same<T, struct recursive_map>::value, T>
-		as() { return std::get<T>(*this); }
-
-	template <typename T>
-	std::enable_if_t<std::is_same<T, struct recursive_map>::value, T>
-		as() { return std::get<boost::recursive_wrapper< recursive_map >>(*this).get(); }
+    template <typename T>
+    auto as() {
+        if constexpr (std::conjunction_v<std::is_same<T, struct recursive_map>>) {
+            return std::get<boost::recursive_wrapper< recursive_map >>(*this).get();
+        } else {
+            return std::get<T>(*this);
+        }
+    }
 };
 //}
 
