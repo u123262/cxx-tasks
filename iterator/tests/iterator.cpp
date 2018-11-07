@@ -67,6 +67,12 @@ TEST_CASE("iterator::operations")
         CHECK(distance(myimage.begin(), it) == length / 3 + 17);
         CHECK(distance(it, myimage.end()) == length - (length / 3 + 17));
     }
+
+    SECTION("next row")
+    {
+        CHECK(distance(it + 127, it + 128) == 1);
+        CHECK(distance(it + 128, it + 127) == -1);
+    }
 }
 
 TEST_CASE("iterator::write")
