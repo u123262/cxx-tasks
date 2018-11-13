@@ -45,7 +45,7 @@ struct recursive_array2: std::vector<std::variant<number, boost::recursive_wrapp
 	using base::base;
 };
 //}
-struct recursive_map;
+
 //{ variant_decorator
 template<typename...U>
 struct variant_decorator: std::variant<U...>
@@ -55,8 +55,8 @@ struct variant_decorator: std::variant<U...>
 
 	template <typename T>
     const T& as() const {
-		if constexpr (std::is_same<T, recursive_map>()) {
-			return std::get<boost::recursive_wrapper< recursive_map >>(*this).get();
+		if constexpr (!std::disjunction_v<std::is_same<T, U>...>) {
+			return std::get<boost::recursive_wrapper<T>>(*this).get();
 		} else {
 			return std::get<T>(*this);
 		}
