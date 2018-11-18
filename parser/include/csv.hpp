@@ -37,7 +37,7 @@ namespace types
     {
         //? Which kind of types should I use to describe the CSV type?
         //{
-        ... csv = ...
+        using csv = std::vector<std::vector<std::string>>;
         //}
     }
 }
@@ -51,15 +51,15 @@ namespace parser
         namespace x3 = boost::spirit::x3;
 
         //{ csv grammar
-        ... string = ...
-        ... cell = ...
-                 = ...
+        auto const string = x3::lexeme[*(~x3::char_(",\n"))];
+        auto const cell = x3::rule<class cell, std::string>{}
+                 = (quoted_string | string);
 
-        ... row = ...
-                = ...
+        auto const row = x3::rule<class row, std::vector<std::string>>{}
+                = cell >> *(',' >> cell) >> x3::no_skip['\n'];
 
-        ... csv = ...
-                = ...
+        auto const csv = x3::rule<class csv, std::vector<std::vector<std::string>>>{}
+                 = row >> *row;
         //}
     }
 }
@@ -69,9 +69,9 @@ namespace literals
     namespace csv
     {
         //{ declare ``_csv`` literal
-        ... _csv ..
+        auto operator "" _csv(const char* str, unsigned long long)
         {
-
+            return parser::load_from_string<types::csv::csv>(str, parser::csv::csv);
         }
         //}
     }
