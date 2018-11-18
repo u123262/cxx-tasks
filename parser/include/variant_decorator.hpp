@@ -34,6 +34,6 @@ struct variant_decorator: public x3::variant<T...>
     {
         return boost::get<T>(*this);
     }
-}
+};
 
 #endif // __VARIANT_DECORATOR_HPP__
