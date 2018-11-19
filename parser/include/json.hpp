@@ -62,11 +62,13 @@ namespace parser
         x3::rule<struct object, types::json::object> object = "object";
         x3::rule<struct json, types::json::json> json = "json";
 
-        auto const value = (number | nullable | quoted_string | x3::ascii::bool_ | array | object);
+        auto const value = x3::rule<struct value, types::json::value> {}
+            = (number | nullable | quoted_string | x3::ascii::bool_ | array | object);
 
-        auto const key_value = quoted_string >> ':' >> value;
+        auto const key_value = x3::rule<struct value, std::pair<std::string, types::json::value>> {}
+            = quoted_string >> ':' >> value;
 
-        auto const array_def = '[' >> value >> *(',' >> value) >> ']';
+        auto const array_def = '[' >> value % ',' >> ']';
         auto const object_def = '{' >> key_value % ',' >> '}';
         auto const json_def = (array | object);
         //}
