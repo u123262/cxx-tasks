@@ -56,10 +56,10 @@ namespace parser
                  = (quoted_string | string);
 
         auto const row = x3::rule<class row, std::vector<std::string>>{}
-                = cell >> *(',' >> cell) >> x3::no_skip['\n'];
+                = cell % ',' >> x3::no_skip['\n'];
 
         auto const csv = x3::rule<class csv, std::vector<std::vector<std::string>>>{}
-                 = row >> *row;
+                 = +row;
         //}
     }
 }
