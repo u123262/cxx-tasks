@@ -14,7 +14,7 @@ namespace parser
     namespace x3 = boost::spirit::x3;
 
     //{ should be only one line
-    auto const quoted_string = '"' >> x3::no_skip[*(x3::char_ - '"')] >> '"';
+    auto const quoted_string = x3::lexeme [ '"' >> *('\\' >> x3::char_ | ~x3::char_('"')) >> '"' ];
     //}
 }
 
