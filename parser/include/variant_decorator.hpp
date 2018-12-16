@@ -12,7 +12,9 @@
 namespace x3 = boost::spirit::x3;
 
 //? How to inherit x3::variant constructor & ``operator=``?
+//! using base_type::operator=;
 //? Why I need inherited constructor & ``operator=``?
+//! Т.к. компилятор неявно создает operator=, который скрывает унаследованный operator=
 //? How many constructors did I inherit?
 //? Do I need my own constructor & ``operator=``? Why?
 //{
