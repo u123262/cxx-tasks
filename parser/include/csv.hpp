@@ -36,6 +36,7 @@ namespace types
     namespace csv
     {
         //? Which kind of types should I use to describe the CSV type?
+        //! Вектор, строка
         //{
         using csv = std::vector<std::vector<std::string>>;
         //}
@@ -47,7 +48,9 @@ namespace parser
     namespace csv
     {
         //? Why I need a x3::no_skip here? Where is the original of the error?
+        //! Необходимо выключить пропуск пробелов
         //? Where is BOOST_SPIRIT_DEFINE? Is it necessary?
+        //! В BOOST_SPIRIT_DEFINE нет необходимости (нет рекурсии)
         namespace x3 = boost::spirit::x3;
 
         //{ csv grammar
