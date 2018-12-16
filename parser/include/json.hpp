@@ -51,6 +51,7 @@ namespace parser
     namespace json
     {
         //? Why I need ``sfloat_`` instead of just ``x3::float_``?
+	//! Для предотвращения преобразования 1 -> 1.0
         //? What is the syntax ``class array_``? Is it wrong?
         const auto sfloat_ = x3::real_parser<float, x3::strict_real_policies<float>>();
 
